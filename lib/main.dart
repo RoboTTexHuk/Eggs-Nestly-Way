@@ -479,7 +479,7 @@ class _EggHarborState extends State<EggHarbor> with WidgetsBindingObserver {
     _advisor.hatch(() => setState(() {}));
     _bindNotificationTap();
     await _prepareDevice();
-
+    print("");
     Future.delayed(const Duration(seconds: 6), () async {
       if (!_bootAfSentOnce) {
         _bootAfSentOnce = true;
