@@ -102,7 +102,7 @@ class EggAdvisor with ChangeNotifier {
   void hatch(VoidCallback markDirty) {
     final cfg = af_core.AppsFlyerOptions(
       afDevKey: "qsBLmy7dAXDQhowM8V3ca4",
-      appId: "6753982615",
+      appId: "6754609255",
       showDebug: true,
       timeToWaitForATTUserAuthorization: 0,
     );
@@ -150,7 +150,7 @@ class EggCargoModel {
       "deep": null,
       "bundle_identifier": "com.glolp.ghijj.eggway",
       "app_version": "1.0.0",
-      "apple_id": "6753982615",
+      "apple_id": "6754609255",
       "fcm_token": yolk ?? "no_yolk",
       "device_id": device.eggId ?? "no_device",
       "instance_id": device.batchId ?? "no_batch",
@@ -269,7 +269,7 @@ Future<void> postEggStat({
       "timestart": timeStart,
       "timefinsh": timeFinish,
       "url": finalUrl,
-      "appleID": "6753982615",
+      "appleID": "6754609255",
       "open_count": "$appYolk/$timeStart",
     };
 
