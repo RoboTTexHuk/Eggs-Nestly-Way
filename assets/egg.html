@@ -1,16 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Egg Identifier</title>
+
+    <!-- CSP kept as-is from your snippet -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>window.FontAwesomeConfig = { autoReplaceSvg: 'nest' };</script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         :root { color-scheme: dark; }
         ::-webkit-scrollbar { display: none; }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .tab-button.active { background: linear-gradient(135deg, #FBBF24, #F59E0B); color: #000; }
@@ -22,228 +26,315 @@
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        /* Ensure chart container aspect handling */
-        #usageChartContainer { position: relative; height: 220px; }
+
+        /* Layout and iPad optimization */
+        html, body { height: 100%; }
+        body {
+          background: #000;
+          color: #fff;
+          padding-top: env(safe-area-inset-top, 0);
+          padding-bottom: env(safe-area-inset-bottom, 0);
+        }
+
+        #app-root {
+          min-height: 100svh;
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+        }
+
+        /* Responsive container:
+           - phones: full width but comfortable paddings
+           - tablets (iPad): constrained centered width
+           - desktops: wider but still centered
+        */
+        .page-wrap {
+          width: 100%;
+          margin-left: auto;
+          margin-right: auto;
+          padding-left: 1rem;
+          padding-right: 1rem;
+          max-width: 100%;
+        }
+        @media (min-width: 640px) { .page-wrap { padding-left: 1.25rem; padding-right: 1.25rem; } }
+        @media (min-width: 768px) { .page-wrap { max-width: 768px; } }    /* iPad portrait */
+        @media (min-width: 1024px) { .page-wrap { max-width: 960px; } }   /* iPad landscape / small desktop */
+        @media (min-width: 1280px) { .page-wrap { max-width: 1100px; } }
+
+        /* Header and main */
+        #header { padding-top: calc(env(safe-area-inset-top, 0)); }
+        #main-content {
+          flex: 1 1 auto;
+          overflow: auto;
+          -webkit-overflow-scrolling: touch;
+          padding-bottom: 5.5rem; /* space for bottom nav */
+        }
+
+        /* Bottom nav spans full width on tablets/desktops */
+        #bottom-navigation {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding-bottom: calc(env(safe-area-inset-bottom, 0));
+          background: #111827; /* Tailwind gray-900 */
+          border-top: 1px solid rgba(251, 191, 36, 0.2);
+          z-index: 50;
+        }
+        #bottom-navigation .nav-inner {
+          width: 100%;
+          margin: 0 auto;
+          padding-left: 0.5rem;
+          padding-right: 0.5rem;
+          display: flex;
+          gap: 0;
+          max-width: 100%;
+        }
+        @media (min-width: 768px) {
+          #bottom-navigation .nav-inner { max-width: 960px; padding-left: 1rem; padding-right: 1rem; }
+        }
+        @media (min-width: 1024px) {
+          #bottom-navigation .nav-inner { max-width: 1100px; }
+        }
+
+        /* Chart container: taller on tablets/desktops */
+        #usageChartContainer {
+          position: relative;
+          height: 220px;
+        }
+        @media (min-width: 768px) {
+          #usageChartContainer { height: 280px; }
+        }
+
+        /* iPad hit targets */
+        @media (min-width: 768px) {
+          .tab-button { padding-top: 0.9rem; padding-bottom: 0.9rem; }
+          button, .tap-area { min-height: 44px; }
+        }
     </style>
-</head>
-<body class="bg-black text-white min-h-screen">
-<div id="mobile-app" class="max-w-sm mx-auto bg-black relative">
-    <header id="header" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black p-4 sticky top-0 z-50">
-        <div class="flex items-center justify-between">
+
+    <script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script>
+    <script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.3f7572448765332f3047.js"></script></head>
+<body>
+<div id="app-root">
+    <header id="header" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black sticky top-0 z-50">
+        <div class="page-wrap py-4 flex items-center justify-between">
             <h1 class="text-xl font-bold">EggID Pro</h1>
             <i class="fas fa-egg text-2xl"></i>
         </div>
     </header>
 
-    <main id="main-content" class="pb-24">
-        <!-- Tab 1 -->
-        <div id="tab1-content" class="tab-content active p-4">
-            <div id="identification-section" class="space-y-6">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-yellow-400 mb-2">Identify Your Egg</h2>
-                    <p class="text-gray-300">Take or upload a photo to identify the species</p>
-                </div>
-
-                <div id="camera-section" class="bg-gray-900 rounded-xl p-6 border border-yellow-400/20">
-                    <div id="tapToCapture" class="w-full h-64 bg-gray-800 rounded-lg border-2 border-dashed border-yellow-400/30 flex items-center justify-center mb-4 tap-area">
-                        <div class="text-center pointer-events-none">
-                            <i class="fas fa-camera text-yellow-400 text-4xl mb-3"></i>
-                            <p class="text-gray-400">Tap to take photo</p>
-                        </div>
+    <main id="main-content">
+        <div class="page-wrap">
+            <!-- Tab 1 -->
+            <div id="tab1-content" class="tab-content active py-4">
+                <div id="identification-section" class="space-y-6">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-yellow-400 mb-2">Identify Your Egg</h2>
+                        <p class="text-gray-300">Take or upload a photo to identify the species</p>
                     </div>
 
-                    <!-- Hidden inputs for camera and upload -->
-                    <input id="fileInputCamera" type="file" accept="image/*" capture="environment" class="hidden" />
-                    <input id="fileInputUpload" type="file" accept="image/*" class="hidden" />
-
-                    <div class="flex gap-3">
-                        <button id="btnCamera" class="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black py-3 rounded-lg font-semibold">
-                            <i class="fas fa-camera mr-2"></i>Camera
-                        </button>
-                        <button id="btnUpload" class="flex-1 bg-gray-800 border border-yellow-400/30 text-yellow-400 py-3 rounded-lg font-semibold">
-                            <i class="fas fa-upload mr-2"></i>Upload
-                        </button>
-                    </div>
-
-                    <!-- Preview + result -->
-                    <div id="previewBox" class="mt-5 hidden">
-                        <div class="w-full rounded-lg overflow-hidden border border-yellow-400/20">
-                            <img id="previewImage" alt="preview" class="w-full object-cover max-h-72" />
+                    <div id="camera-section" class="bg-gray-900 rounded-xl p-6 border border-yellow-400/20">
+                        <div id="tapToCapture" class="w-full h-64 bg-gray-800 rounded-lg border-2 border-dashed border-yellow-400/30 flex items-center justify-center mb-4 tap-area">
+                            <div class="text-center pointer-events-none">
+                                <i class="fas fa-camera text-yellow-400 text-4xl mb-3"></i>
+                                <p class="text-gray-400">Tap to take photo</p>
+                            </div>
                         </div>
-                        <div id="resultBox" class="mt-4 bg-black/30 rounded-lg p-3">
-                            <p class="text-gray-300 text-sm">Result:</p>
-                            <div class="flex items-center justify-between mt-2">
-                                <div>
-                                    <h4 id="resultTitle" class="font-semibold text-yellow-400">-</h4>
-                                    <p id="resultConfidence" class="text-gray-400 text-sm">Confidence: -</p>
+
+                        <input id="fileInputCamera" type="file" accept="image/*" capture="environment" class="hidden">
+                        <input id="fileInputUpload" type="file" accept="image/*" class="hidden">
+
+                        <div class="flex gap-3">
+                            <button id="btnCamera" class="flex-1 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black py-3 rounded-lg font-semibold">
+                                <i class="fas fa-camera mr-2"></i>Camera
+                            </button>
+                            <button id="btnUpload" class="flex-1 bg-gray-800 border border-yellow-400/30 text-yellow-400 py-3 rounded-lg font-semibold">
+                                <i class="fas fa-upload mr-2"></i>Upload
+                            </button>
+                        </div>
+
+                        <div id="previewBox" class="mt-5 hidden">
+                            <div class="w-full rounded-lg overflow-hidden border border-yellow-400/20">
+                                <img id="previewImage" alt="preview" class="w-full object-cover max-h-72">
+                            </div>
+                            <div id="resultBox" class="mt-4 bg-black/30 rounded-lg p-3">
+                                <p class="text-gray-300 text-sm">Result:</p>
+                                <div class="flex items-center justify-between mt-2">
+                                    <div>
+                                        <h4 id="resultTitle" class="font-semibold text-yellow-400">-</h4>
+                                        <p id="resultConfidence" class="text-gray-400 text-sm">Confidence: -</p>
+                                    </div>
+                                    <button id="btnSaveCurrent" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
+                                        Save
+                                    </button>
                                 </div>
-                                <button id="btnSaveCurrent" class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-4 py-2 rounded-lg font-semibold">
-                                    Save
-                                </button>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div id="recent-identifications" class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <h3 class="text-lg font-semibold text-yellow-400">Recent Identifications</h3>
-                        <button id="btnClearRecent" class="text-xs text-gray-400 hover:text-yellow-400">Clear</button>
-                    </div>
-                    <div id="recentList" class="space-y-3">
-                        <!-- Will be rendered dynamically -->
+                    <div id="recent-identifications" class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-yellow-400">Recent Identifications</h3>
+                            <button id="btnClearRecent" class="text-xs text-gray-400 hover:text-yellow-400">Clear</button>
+                        </div>
+                        <div id="recentList" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Tab 2 -->
-        <div id="tab2-content" class="tab-content p-4">
-            <div id="saved-eggs-section" class="space-y-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-yellow-400">Saved Eggs</h2>
-                    <span id="savedCount" class="bg-yellow-400/20 text-yellow-400 px-3 py-1 rounded-full text-sm">0 saved</span>
-                </div>
-
-                <div id="savedList" class="space-y-4">
-                    <!-- Saved cards injected here -->
+            <!-- Tab 2 -->
+            <div id="tab2-content" class="tab-content py-4">
+                <div id="saved-eggs-section" class="space-y-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold text-yellow-400">Saved Eggs</h2>
+                        <span id="savedCount" class="bg-yellow-400/20 text-yellow-400 px-3 py-1 rounded-full text-sm">0 saved</span>
+                    </div>
+                    <div id="savedList" class="space-y-4"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- Tab 3 -->
-        <div id="tab3-content" class="tab-content p-4">
-            <div id="care-methods-section" class="space-y-6">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-yellow-400 mb-2">Egg Care Guide</h2>
-                    <p class="text-gray-300">Learn how to incubate and raise chicks</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
-                        <div class="flex items-center gap-3 mb-3">
-                            <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-thermometer-half text-yellow-400"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-semibold text-lg">Temperature Control</h3>
-                                <p class="text-gray-400 text-sm">Maintain optimal incubation temperature</p>
-                            </div>
-                        </div>
-                        <div class="bg-black/30 rounded-lg p-3">
-                            <p class="text-yellow-400 font-semibold">37.5°C (99.5°F)</p>
-                            <p class="text-gray-400 text-sm">Keep temperature stable ±0.5°C</p>
-                        </div>
+            <!-- Tab 3 -->
+            <div id="tab3-content" class="tab-content py-4">
+                <div id="care-methods-section" class="space-y-6">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-yellow-400 mb-2">Egg Care Guide</h2>
+                        <p class="text-gray-300">Learn how to incubate and raise chicks</p>
                     </div>
 
-                    <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
-                        <div class="flex items-center gap-3 mb-3">
-                            <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-tint text-yellow-400"></i>
+                    <div class="space-y-4">
+                        <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-thermometer-half text-yellow-400"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-lg">Temperature Control</h3>
+                                    <p class="text-gray-400 text-sm">Maintain optimal incubation temperature</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-semibold text-lg">Humidity Levels</h3>
-                                <p class="text-gray-400 text-sm">Control moisture for healthy development</p>
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-yellow-400 font-semibold">37.5°C (99.5°F)</p>
+                                <p class="text-gray-400 text-sm">Keep temperature stable ±0.5°C</p>
                             </div>
                         </div>
-                        <div class="bg-black/30 rounded-lg p-3">
-                            <p class="text-yellow-400 font-semibold">55-60% RH</p>
-                            <p class="text-gray-400 text-sm">Increase to 65% in final 3 days</p>
-                        </div>
-                    </div>
 
-                    <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
-                        <div class="flex items-center gap-3 mb-3">
-                            <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
-                                <i class="fas fa-redo text-yellow-400"></i>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-tint text-yellow-400"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-lg">Humidity Levels</h3>
+                                    <p class="text-gray-400 text-sm">Control moisture for healthy development</p>
+                                </div>
                             </div>
-                            <div>
-                                <h3 class="font-semibold text-lg">Turning Schedule</h3>
-                                <p class="text-gray-400 text-sm">Regular turning prevents sticking</p>
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-yellow-400 font-semibold">55-60% RH</p>
+                                <p class="text-gray-400 text-sm">Increase to 65% in final 3 days</p>
                             </div>
                         </div>
-                        <div class="bg-black/30 rounded-lg p-3">
-                            <p class="text-yellow-400 font-semibold">Every 4-6 hours</p>
-                            <p class="text-gray-400 text-sm">Stop turning 3 days before hatching</p>
-                        </div>
-                    </div>
 
-                    <div class="bg-gradient-to-r from-yellow-400/10 to-yellow-500/10 rounded-xl p-5 border border-yellow-400/30">
-                        <h3 class="font-semibold text-lg text-yellow-400 mb-2">Incubation Timeline</h3>
-                        <div class="space-y-2">
-                            <div class="flex justify-between">
-                                <span class="text-gray-300">Chicken eggs:</span>
-                                <span class="text-yellow-400">21 days</span>
+                        <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="w-12 h-12 bg-yellow-400/20 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-redo text-yellow-400"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-lg">Turning Schedule</h3>
+                                    <p class="text-gray-400 text-sm">Regular turning prevents sticking</p>
+                                </div>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-300">Duck eggs:</span>
-                                <span class="text-yellow-400">28 days</span>
+                            <div class="bg-black/30 rounded-lg p-3">
+                                <p class="text-yellow-400 font-semibold">Every 4-6 hours</p>
+                                <p class="text-gray-400 text-sm">Stop turning 3 days before hatching</p>
                             </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-300">Quail eggs:</span>
-                                <span class="text-yellow-400">18 days</span>
+                        </div>
+
+                        <div class="bg-gradient-to-r from-yellow-400/10 to-yellow-500/10 rounded-xl p-5 border border-yellow-400/30">
+                            <h3 class="font-semibold text-lg text-yellow-400 mb-2">Incubation Timeline</h3>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-300">Chicken eggs:</span>
+                                    <span class="text-yellow-400">21 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-300">Duck eggs:</span>
+                                    <span class="text-yellow-400">28 days</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-300">Quail eggs:</span>
+                                    <span class="text-yellow-400">18 days</span>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Tab 4 -->
-        <div id="tab4-content" class="tab-content p-4">
-            <div id="analytics-section" class="space-y-6">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-yellow-400 mb-2">Analytics</h2>
-                    <p class="text-gray-300">Track your egg usage patterns</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div class="bg-gray-900 rounded-xl p-4 border border-yellow-400/20 text-center">
-                        <i class="fas fa-utensils text-yellow-400 text-2xl mb-2"></i>
-                        <p id="statCooked" class="text-2xl font-bold text-yellow-400">0</p>
-                        <p class="text-gray-400 text-sm">Cooked</p>
+            <!-- Tab 4 -->
+            <div id="tab4-content" class="tab-content py-4">
+                <div id="analytics-section" class="space-y-6">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-yellow-400 mb-2">Analytics</h2>
+                        <p class="text-gray-300">Track your egg usage patterns</p>
                     </div>
-                    <div class="bg-gray-900 rounded-xl p-4 border border-yellow-400/20 text-center">
-                        <i class="fas fa-heart text-yellow-400 text-2xl mb-2"></i>
-                        <p id="statIncubated" class="text-2xl font-bold text-yellow-400">0</p>
-                        <p class="text-gray-400 text-sm">Incubated</p>
-                    </div>
-                </div>
 
-                <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
-                    <h3 class="font-semibold text-lg text-yellow-400 mb-4">Usage Distribution</h3>
-                    <div id="usageChartContainer" class="relative">
-                        <canvas id="usageChart"></canvas>
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <div class="bg-gray-900 rounded-xl p-4 border border-yellow-400/20 text-center">
+                            <i class="fas fa-utensils text-yellow-400 text-2xl mb-2"></i>
+                            <p id="statCooked" class="text-2xl font-bold text-yellow-400">0</p>
+                            <p class="text-gray-400 text-sm">Cooked</p>
+                        </div>
+                        <div class="bg-gray-900 rounded-xl p-4 border border-yellow-400/20 text-center">
+                            <i class="fas fa-heart text-yellow-400 text-2xl mb-2"></i>
+                            <p id="statIncubated" class="text-2xl font-bold text-yellow-400">0</p>
+                            <p class="text-gray-400 text-sm">Incubated</p>
+                        </div>
                     </div>
-                </div>
 
-                <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
-                    <h3 class="font-semibold text-lg text-yellow-400 mb-4">Species Breakdown</h3>
-                    <div class="space-y-3" id="speciesBreakdown">
-                        <!-- dynamic species rows -->
+                    <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
+                        <h3 class="font-semibold text-lg text-yellow-400 mb-4">Usage Distribution</h3>
+                        <div id="usageChartContainer" class="relative">
+                            <canvas id="usageChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-900 rounded-xl p-5 border border-yellow-400/20">
+                        <h3 class="font-semibold text-lg text-yellow-400 mb-4">Species Breakdown</h3>
+                        <div class="space-y-3" id="speciesBreakdown"></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    <nav id="bottom-navigation" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-sm bg-gray-900 border-t border-yellow-400/20">
-        <div class="flex">
-            <button class="tab-button active flex-1 py-3 text-center" data-tab="1">
-                <i class="fas fa-camera block text-xl mb-1"></i>
-                <span class="text-xs">Identify</span>
+    <nav id="bottom-navigation">
+        <div class="nav-inner">
+            <button class="tab-button active flex-1 py-3 text-center">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-camera text-xl mb-1"></i>
+                    <span class="text-xs">Identify</span>
+                </div>
             </button>
-            <button class="tab-button flex-1 py-3 text-center text-gray-400" data-tab="2">
-                <i class="fas fa-bookmark block text-xl mb-1"></i>
-                <span class="text-xs">Saved</span>
+            <button class="tab-button flex-1 py-3 text-center text-gray-400">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-bookmark text-xl mb-1"></i>
+                    <span class="text-xs">Saved</span>
+                </div>
             </button>
-            <button class="tab-button flex-1 py-3 text-center text-gray-400" data-tab="3">
-                <i class="fas fa-heart block text-xl mb-1"></i>
-                <span class="text-xs">Care</span>
+            <button class="tab-button flex-1 py-3 text-center text-gray-400">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-heart text-xl mb-1"></i>
+                    <span class="text-xs">Care</span>
+                </div>
             </button>
-            <button class="tab-button flex-1 py-3 text-center text-gray-400" data-tab="4">
-                <i class="fas fa-chart-bar block text-xl mb-1"></i>
-                <span class="text-xs">Analytics</span>
+            <button class="tab-button flex-1 py-3 text-center text-gray-400">
+                <div class="flex flex-col items-center">
+                    <i class="fas fa-chart-bar text-xl mb-1"></i>
+                    <span class="text-xs">Analytics</span>
+                </div>
             </button>
         </div>
     </nav>
@@ -251,7 +342,7 @@
 
 <!-- Modal -->
 <div id="modalRoot" class="hidden fixed inset-0 z-[60] modal-backdrop flex items-end md:items-center justify-center p-4">
-    <div class="bg-gray-900 border border-yellow-400/20 rounded-xl w-full max-w-sm shadow-xl">
+    <div class="bg-gray-900 border border-yellow-400/20 rounded-xl w-full max-w-sm md:max-w-md lg:max-w-lg shadow-xl">
         <div class="p-4 border-b border-yellow-400/10 flex items-center justify-between">
             <h3 id="modalTitle" class="text-yellow-400 font-semibold">Modal</h3>
             <button id="modalClose" class="text-gray-400 hover:text-yellow-400">
@@ -298,21 +389,22 @@
     let analytics = loadJSON(KEYS.ANALYTICS, defaultAnalytics);
 
     // Tabs
-    const tabButtons = Array.from(document.querySelectorAll('.tab-button'));
-    const tabContents = {
-      1: document.getElementById('tab1-content'),
-      2: document.getElementById('tab2-content'),
-      3: document.getElementById('tab3-content'),
-      4: document.getElementById('tab4-content'),
-    };
+    const tabButtons = Array.from(document.querySelectorAll('#bottom-navigation .tab-button'));
+    const tabContents = [
+      document.getElementById('tab1-content'),
+      document.getElementById('tab2-content'),
+      document.getElementById('tab3-content'),
+      document.getElementById('tab4-content'),
+    ];
 
-    tabButtons.forEach(btn => {
-      btn.addEventListener('click', () => showTab(Number(btn.dataset.tab)));
+    tabButtons.forEach((btn, idx) => {
+      btn.dataset.tab = String(idx + 1);
+      btn.addEventListener('click', () => showTab(idx + 1));
     });
 
     function showTab(tabNumber) {
-      Object.values(tabContents).forEach(c => c.classList.remove('active'));
-      tabContents[tabNumber].classList.add('active');
+      tabContents.forEach(c => c.classList.remove('active'));
+      tabContents[tabNumber - 1].classList.add('active');
 
       tabButtons.forEach(b => {
         b.classList.remove('active');
@@ -324,11 +416,11 @@
 
       if (tabNumber === 2) renderSaved();
       if (tabNumber === 4) {
-        setTimeout(() => {
+        requestAnimationFrame(() => {
           initOrUpdateChart();
           renderAnalyticsCounts();
           renderSpeciesBreakdown();
-        }, 50);
+        });
       }
     }
 
@@ -341,7 +433,6 @@
       { name: 'Turkey Egg', key: 'Turkey' }
     ];
     function mockIdentify(imageDataUrl) {
-      // Pseudo-random consistent classification based on image length hash
       const h = [...(imageDataUrl || '')].reduce((a, c) => (a + c.charCodeAt(0)) % 1000003, 0);
       const pick = speciesPool[h % speciesPool.length];
       const confidence = 80 + (h % 21); // 80..100
@@ -367,7 +458,6 @@
       if (!file) return;
       const dataUrl = await fileToDataURL(file);
       showPreviewAndResult(dataUrl);
-      // Clean value to allow re-select same file next time
       e.target.value = '';
     }
 
@@ -399,13 +489,11 @@
 
       addRecent(lastResult);
       renderRecent();
-      // Update analytics
       bumpAnalytics(res.key);
     }
 
     function addRecent(item) {
       recent.unshift(item);
-      // keep only last 10
       if (recent.length > 10) recent = recent.slice(0, 10);
       saveJSON(KEYS.RECENT, recent);
     }
@@ -547,7 +635,6 @@
             onOk: () => {
               const note = document.getElementById(`note_${item.id}`).value;
               const tagInput = document.getElementById(`tagInput_${item.id}`);
-              // persist possible input not added via button
               if (tagInput.value.trim()) {
                 item.tags.push(tagInput.value.trim());
               }
@@ -557,19 +644,6 @@
               renderSaved();
             }
           });
-
-          setTimeout(() => {
-            const addBtn = document.getElementById(`addTag_${item.id}`);
-            const input = document.getElementById(`tagInput_${item.id}`);
-            addBtn?.addEventListener('click', () => {
-              const val = input.value.trim();
-              if (!val) return;
-              item.tags.push(val);
-              input.value = '';
-              // Reopen content area quickly:
-              document.getElementById('modalBody').innerHTML = document.getElementById('modalBody').innerHTML.replace('</div></div>', '');
-            });
-          }, 0);
         });
       });
 
@@ -586,12 +660,9 @@
         btn.addEventListener('click', () => {
           const id = btn.dataset.id;
           const item = saved.find(x => x.id === id);
-          showModal({
-            title: 'Create Recipe',
-            body: `<p class="text-sm text-gray-300">Feature coming soon. We’ll suggest recipes for <span class="text-yellow-400 font-semibold">${item?.title || 'your egg'}</span>.</p>`,
-            okText: 'OK',
-            cancelText: 'Close'
-          });
+          const title = item?.title || 'your egg';
+          const speciesKey = item?.key || guessSpeciesKeyFromTitle(title);
+          openRecipeModal(speciesKey, title);
         });
       });
     }
@@ -663,14 +734,12 @@
     }
 
     function bumpAnalytics(speciesKey) {
-      // For demo: randomly increment cooked or incubated
       const incCooked = Math.random() < 0.6;
       if (incCooked) analytics.cooked++; else analytics.incubated++;
       analytics.species[speciesKey] = (analytics.species[speciesKey] || 0) + 1;
       saveJSON(KEYS.ANALYTICS, analytics);
 
-      // Refresh UI where visible
-      if (tabContents[4].classList.contains('active')) {
+      if (tabContents[3].classList.contains('active')) {
         initOrUpdateChart();
         renderAnalyticsCounts();
         renderSpeciesBreakdown();
@@ -698,7 +767,7 @@
       modalRoot.classList.add('hidden');
       modalOkHandler = null;
     }
-    modalOk.addEventListener('click', () => { if (modalOkHandler) modalOkHandler(); hideModal(); });
+    modalOk.addEventListener('click', () => { if (modalOkHandler) modalOkHandler(); });
     modalCancel.addEventListener('click', hideModal);
     modalClose.addEventListener('click', hideModal);
     modalRoot.addEventListener('click', (e) => { if (e.target === modalRoot) hideModal(); });
@@ -713,11 +782,145 @@
         .replaceAll("'", '&#039;');
     }
 
+    function randPick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+
+    function guessSpeciesKeyFromTitle(t) {
+      if (!t) return 'Chicken';
+      const map = { Chicken: 'Chicken', Duck: 'Duck', Quail: 'Quail', Goose: 'Goose', Turkey: 'Turkey' };
+      for (const k of Object.keys(map)) {
+        if (t.toLowerCase().includes(k.toLowerCase())) return map[k];
+      }
+      return 'Chicken';
+    }
+
+    // Recipe generator
+    const RECIPE_BANK = {
+      baseNames: {
+        Chicken: ['Classic Omelette', 'Shakshuka', 'Sunny Scramble', 'Herb Frittata', 'Cloud Eggs'],
+        Duck: ['Silky Duck Egg Ramen', 'Rich Carbonara', 'Duck Egg Toast Soldiers', 'Crispy Duck Egg Hash'],
+        Quail: ['Mini Quail Scotch Eggs', 'Tapas-Style Quail Bites', 'Quail Egg Canapés', 'Quail Egg Ramen Topper'],
+        Goose: ['Goose Egg Frittata', 'Baked Goose Egg Gratin', 'Hearty Goose Egg Shakshuka', 'Goose Egg Breakfast Skillet'],
+        Turkey: ['Turkey Egg Breakfast Burrito', 'Baked Turkey Egg Cups', 'Smoky Turkey Egg Scramble', 'Turkey Egg Fried Rice']
+      },
+      techniques: ['pan-sear', 'whisk', 'fold', 'bake', 'poach', 'steam', 'slow-stir', 'torch finish', 'broil'],
+      fats: ['olive oil', 'butter', 'ghee', 'duck fat', 'avocado oil'],
+      aromatics: ['garlic', 'shallot', 'spring onion', 'leek', 'red onion'],
+      herbs: ['parsley', 'chives', 'dill', 'basil', 'cilantro', 'thyme', 'oregano'],
+      spices: ['smoked paprika', 'black pepper', 'chili flakes', 'cumin', 'turmeric', 'za’atar'],
+      cheeses: ['parmesan', 'cheddar', 'feta', 'goat cheese', 'mozzarella', 'gruyère'],
+      addins: ['spinach', 'mushrooms', 'cherry tomatoes', 'bell pepper', 'zucchini', 'sweet corn', 'peas'],
+      carbs: ['sourdough toast', 'crispy potatoes', 'buttered rice', 'flatbread', 'noodles'],
+      finishes: ['lemon zest', 'microgreens', 'chili oil', 'truffle salt', 'green herbs', 'toasted sesame'],
+      portionsHint: {
+        Chicken: '2 chicken eggs serve 1',
+        Duck: '1 duck egg ≈ 1.5 chicken eggs',
+        Quail: '4–5 quail eggs per serving',
+        Goose: '1 goose egg ≈ 3 chicken eggs',
+        Turkey: '1 turkey egg ≈ 2 chicken eggs'
+      },
+      times: {
+        quick: ['10–12 min', '12–15 min'],
+        bake: ['18–22 min', '20–25 min']
+      }
+    };
+
+    function generateRecipe(speciesKey) {
+      const bank = RECIPE_BANK;
+      const name = randPick(bank.baseNames[speciesKey] || bank.baseNames.Chicken);
+      const tech = randPick(bank.techniques);
+      const fat = randPick(bank.fats);
+      const arom = randPick(bank.aromatics);
+      const herb1 = randPick(bank.herbs);
+      const herb2 = randPick(bank.herbs.filter(h => h !== herb1));
+      const spice = randPick(bank.spices);
+      const cheese = randPick(bank.cheeses);
+      const add1 = randPick(bank.addins);
+      const add2 = randPick(bank.addins.filter(a => a !== add1));
+      const carb = randPick(bank.carbs);
+      const finish = randPick(bank.finishes);
+
+      const eggsCount = {
+        Chicken: `${randInt(2,3)} chicken eggs`,
+        Duck: `${randInt(1,2)} duck egg${randInt(1,2)===1?'':'s'}`,
+        Quail: `${randInt(4,6)} quail eggs`,
+        Goose: `1 goose egg`,
+        Turkey: `${randInt(1,2)} turkey egg${randInt(1,2)===1?'':'s'}`
+      }[speciesKey] || `${randInt(2,3)} eggs`;
+
+      const time = (tech === 'bake' || tech === 'broil') ? randPick(bank.times.bake) : randPick(bank.times.quick);
+
+      const ingredients = [
+        `${eggsCount}`,
+        `1 tbsp ${fat}`,
+        `1 ${arom}`,
+        `${randInt(50,90)} g ${cheese}`,
+        `${add1}, ${add2}`,
+        `${herb1}, ${herb2}`,
+        `${spice}`,
+        `salt to taste`
+      ];
+
+      const steps = [
+        `Prep: finely chop ${arom}, rough-chop ${add1} and ${add2}, grate ${cheese}.`,
+        `Heat: add ${fat} to a medium pan; ${tech} ${arom} 1–2 min until fragrant.`,
+        `Whisk: beat ${eggsCount} with a pinch of salt and ${spice}.`,
+        `Cook: pour eggs into pan, add ${add1} and ${add2}; slow-stir until just set.`,
+        `Finish: fold in ${cheese}, sprinkle ${herb1} and ${herb2}; top with ${finish}.`,
+        `Serve with ${carb}. Total time: ${time}.`
+      ];
+
+      const note = RECIPE_BANK.portionsHint[speciesKey] || 'Adjust quantities to taste.';
+      return { name, ingredients, steps, note, time, speciesKey };
+    }
+
+    function recipeToHtml(recipe, forTitle) {
+      const listIng = recipe.ingredients.map(i => `<li class="ml-4 list-disc">${escapeHtml(i)}</li>`).join('');
+      const listSteps = recipe.steps.map((s, idx) => `<li class="ml-4">${idx+1}. ${escapeHtml(s)}</li>`).join('');
+      return `
+        <div class="space-y-3">
+          <p class="text-sm text-gray-300">Random recipe for <span class="text-yellow-400 font-semibold">${escapeHtml(forTitle)}</span></p>
+          <div class="bg-black/30 rounded-lg p-3">
+            <h4 class="font-semibold text-yellow-400 mb-2">${escapeHtml(recipe.name)}</h4>
+            <p class="text-xs text-gray-400 mb-2">Time: ${escapeHtml(recipe.time)}</p>
+            <p class="font-semibold mb-1">Ingredients</p>
+            <ul class="text-sm text-gray-200 space-y-1">${listIng}</ul>
+            <p class="font-semibold mt-3 mb-1">Steps</p>
+            <ol class="text-sm text-gray-200 space-y-1">${listSteps}</ol>
+            <p class="text-xs text-gray-400 mt-3">Note: ${escapeHtml(recipe.note)}</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function openRecipeModal(speciesKey, titleFor) {
+      let current = generateRecipe(speciesKey);
+      const render = () => {
+        showModal({
+          title: 'Create Recipe',
+          body: recipeToHtml(current, titleFor),
+          okText: 'OK',
+          cancelText: 'Close',
+          onOk: () => {
+            current = generateRecipe(speciesKey);
+            document.getElementById('modalBody').innerHTML = recipeToHtml(current, titleFor);
+          }
+        });
+      };
+      render();
+    }
+
+    // Modal functions
+    function hideModal() {
+      modalRoot.classList.add('hidden');
+      modalOkHandler = null;
+    }
+
     // Initial render
     renderRecent();
     renderSaved();
 
-    // Analytics initial paint when tab opened
+    // Lazy init analytics on visibility
     let observerForTab4 = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -730,5 +933,6 @@
     }, { root: null, threshold: 0.2 });
     observerForTab4.observe(document.getElementById('tab4-content'));
 </script>
-</body>
-</html>
+
+
+</body></html>
